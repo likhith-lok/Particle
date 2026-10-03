@@ -6,10 +6,10 @@ const Config = {
     particleCount: 500,
     maxParticleCount: 5000,
     connectionDistance: 142,
-    mouseRadius: 240,
+    mouseRadius: 300,
     baseRadius: 0.9,
     driftStrength: 0.075,
-    repelStrength: 0.34,
+    repelStrength: 0.62,
     friction: 0.965,
     colors: [
         { h: 183, s: 96, l: 66 },
