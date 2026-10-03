@@ -281,6 +281,10 @@ h1 span {
     transform: translateX(-50%);
 }
 
+.mobile-recommendation {
+    display: none;
+}
+
 .density-control__heading {
     display: flex;
     align-items: center;
@@ -469,6 +473,17 @@ h1 span {
     .density-control {
         bottom: calc(66px + env(safe-area-inset-bottom));
         width: min(280px, calc(100vw - 48px));
+    }
+
+    .mobile-recommendation {
+        display: block;
+        margin: 6px 0 0;
+        color: rgba(193, 215, 244, 0.42);
+        font-size: 7px;
+        letter-spacing: 0.06em;
+        line-height: 1.5;
+        text-align: center;
+        text-transform: uppercase;
     }
 }
 
