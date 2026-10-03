@@ -185,8 +185,10 @@ class Visualizer {
         this.interactionButton.addEventListener('click', () => this.toggleMouseInteraction());
         document.addEventListener('fullscreenchange', () => this.updateFullscreenButton());
         window.addEventListener('pointerleave', () => {
-            this.mouse.x = null;
-            this.mouse.y = null;
+            if (this.activeTouchId === null) {
+                this.mouse.x = null;
+                this.mouse.y = null;
+            }
         });
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
