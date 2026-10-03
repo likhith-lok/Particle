@@ -34,8 +34,24 @@
         <section class="intro" aria-labelledby="title">
             <p class="eyebrow"><span class="eyebrow__line"></span> Generative study <span>№ 001</span></p>
             <h1 id="title">A field of<br><span>living light.</span></h1>
-            <p class="intro__copy">Hundreds of quiet points,<br>moving as one.</p>
+            <p class="intro__copy">Points of light in quiet motion,<br>moving as one.</p>
         </section>
+
+        <div class="density-control">
+            <div class="density-control__heading">
+                <label for="particle-density">Particle density</label>
+                <output id="density-value" for="particle-density">500</output>
+            </div>
+            <input
+                id="particle-density"
+                type="range"
+                min="100"
+                max="800"
+                step="25"
+                value="500"
+                aria-label="Number of particles"
+            >
+        </div>
 
         <footer class="bottombar">
             <div class="interaction-hint">

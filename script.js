@@ -109,6 +109,8 @@ class Visualizer {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
         this.countElement = document.getElementById('particle-count');
+        this.densityInput = document.getElementById('particle-density');
+        this.densityValue = document.getElementById('density-value');
         this.fpsElement = document.getElementById('fps');
         this.statusElement = document.getElementById('field-status-label');
         this.particles = [];
@@ -134,12 +136,29 @@ class Visualizer {
             { length: Config.particleCount },
             () => new Particle(window.innerWidth, window.innerHeight)
         );
-        this.countElement.textContent = String(Config.particleCount).padStart(3, '0');
+        this.updateParticleCountDisplay();
+    }
+
+    setParticleCount(count) {
+        Config.particleCount = count;
+        while (this.particles.length < count) {
+            this.particles.push(new Particle(window.innerWidth, window.innerHeight));
+        }
+        this.particles.length = count;
+        this.updateParticleCountDisplay();
+    }
+
+    updateParticleCountDisplay() {
+        const count = String(Config.particleCount);
+        this.countElement.textContent = count.padStart(3, '0');
+        this.densityValue.textContent = count;
     }
 
     setupEvents() {
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('pointermove', (event) => {
+            if (event.target.closest('.density-control')) return;
+
             this.mouse.x = event.clientX;
             this.mouse.y = event.clientY;
             this.lastInteraction = performance.now();
@@ -147,6 +166,9 @@ class Visualizer {
             if (this.isIdle) {
                 this.wakeUp();
             }
+        });
+        this.densityInput.addEventListener('input', () => {
+            this.setParticleCount(Number(this.densityInput.value));
         });
         window.addEventListener('pointerleave', () => {
             this.mouse.x = null;
