@@ -4,13 +4,12 @@
 
 const Config = {
     particleCount: 500,
+    maxParticleCount: 5000,
     connectionDistance: 142,
-    mouseRadius: 210,
-    repelRadius: 48,
+    mouseRadius: 240,
     baseRadius: 0.9,
     driftStrength: 0.075,
-    attractionStrength: 0.028,
-    repelStrength: 0.11,
+    repelStrength: 0.34,
     friction: 0.965,
     colors: [
         { h: 183, s: 96, l: 66 },
@@ -59,17 +58,13 @@ class Particle {
 
             if (distanceSquared < Config.mouseRadius * Config.mouseRadius) {
                 const distance = Math.sqrt(distanceSquared);
-                const force = (Config.mouseRadius - distance) / Config.mouseRadius;
+                const force = Math.pow((Config.mouseRadius - distance) / Config.mouseRadius, 2);
 
-                if (distance < Config.repelRadius && distance > 0) {
-                    const repelForce = (Config.repelRadius - distance) / Config.repelRadius;
-                    this.vx -= (dx / distance) * repelForce * Config.repelStrength * step;
-                    this.vy -= (dy / distance) * repelForce * Config.repelStrength * step;
-                } else if (distance > 0) {
-                    this.vx += (dx / distance) * force * Config.attractionStrength * step;
-                    this.vy += (dy / distance) * force * Config.attractionStrength * step;
+                if (distance > 0) {
+                    this.vx -= (dx / distance) * force * Config.repelStrength * step;
+                    this.vy -= (dy / distance) * force * Config.repelStrength * step;
                 }
-                this.glow = force * 11;
+                this.glow = force * 14;
             } else {
                 this.glow *= Math.pow(0.92, step);
             }
@@ -108,13 +103,18 @@ class Visualizer {
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
+        this.experience = document.querySelector('.experience');
         this.countElement = document.getElementById('particle-count');
         this.densityInput = document.getElementById('particle-density');
         this.densityValue = document.getElementById('density-value');
         this.fpsElement = document.getElementById('fps');
         this.statusElement = document.getElementById('field-status-label');
+        this.fullscreenButton = document.getElementById('fullscreen-toggle');
+        this.fullscreenIcon = document.getElementById('fullscreen-icon');
+        this.interactionButton = document.getElementById('interaction-toggle');
         this.particles = [];
         this.mouse = { x: null, y: null };
+        this.mouseInteractionEnabled = true;
         this.lastInteraction = performance.now();
         this.isIdle = false;
         this.dpr = 1;
@@ -140,6 +140,7 @@ class Visualizer {
     }
 
     setParticleCount(count) {
+        count = Math.max(100, Math.min(Config.maxParticleCount, Math.round(count)));
         Config.particleCount = count;
         while (this.particles.length < count) {
             this.particles.push(new Particle(window.innerWidth, window.innerHeight));
@@ -157,7 +158,7 @@ class Visualizer {
     setupEvents() {
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('pointermove', (event) => {
-            if (event.target.closest('.density-control')) return;
+            if (!this.mouseInteractionEnabled || event.target.closest('.topbar, .density-control')) return;
 
             this.mouse.x = event.clientX;
             this.mouse.y = event.clientY;
@@ -170,6 +171,9 @@ class Visualizer {
         this.densityInput.addEventListener('input', () => {
             this.setParticleCount(Number(this.densityInput.value));
         });
+        this.fullscreenButton.addEventListener('click', () => this.toggleFullscreen());
+        this.interactionButton.addEventListener('click', () => this.toggleMouseInteraction());
+        document.addEventListener('fullscreenchange', () => this.updateFullscreenButton());
         window.addEventListener('pointerleave', () => {
             this.mouse.x = null;
             this.mouse.y = null;
@@ -185,6 +189,45 @@ class Visualizer {
                 this.animationFrame = requestAnimationFrame((time) => this.animate(time));
             }
         });
+    }
+
+    async toggleFullscreen() {
+        try {
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            } else {
+                await this.experience.requestFullscreen();
+            }
+        } catch (error) {
+            console.error('Unable to toggle fullscreen mode:', error);
+        }
+    }
+
+    updateFullscreenButton() {
+        const isFullscreen = Boolean(document.fullscreenElement);
+        this.fullscreenButton.setAttribute('aria-label', isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen');
+        this.fullscreenButton.title = isFullscreen ? 'Exit fullscreen (Esc)' : 'Enter fullscreen';
+        this.fullscreenIcon.setAttribute(
+            'd',
+            isFullscreen
+                ? 'M8 3v5H3M16 3v5h5M8 21v-5H3m13 5v-5h5'
+                : 'M3 8V3h5M16 3h5v5M21 16v5h-5M8 21H3v-5'
+        );
+    }
+
+    toggleMouseInteraction() {
+        this.mouseInteractionEnabled = !this.mouseInteractionEnabled;
+        if (!this.mouseInteractionEnabled) {
+            this.mouse.x = null;
+            this.mouse.y = null;
+        }
+
+        const label = this.mouseInteractionEnabled
+            ? 'Disable mouse interaction'
+            : 'Enable mouse interaction';
+        this.interactionButton.setAttribute('aria-label', label);
+        this.interactionButton.setAttribute('aria-pressed', String(this.mouseInteractionEnabled));
+        this.interactionButton.title = label;
     }
 
     resize() {
@@ -203,7 +246,7 @@ class Visualizer {
 
     wakeUp() {
         this.isIdle = false;
-        this.statusElement.textContent = 'FIELD ACTIVE';
+        if (this.statusElement) this.statusElement.textContent = 'FIELD ACTIVE';
         for (const particle of this.particles) {
             particle.vx += (Math.random() - 0.5) * 1.2;
             particle.vy += (Math.random() - 0.5) * 1.2;
@@ -299,7 +342,7 @@ class Visualizer {
     animate(time) {
         if (time - this.lastInteraction > Config.idleTimeout && !this.isIdle) {
             this.isIdle = true;
-            this.statusElement.textContent = 'FIELD RESTING';
+            if (this.statusElement) this.statusElement.textContent = 'FIELD RESTING';
         }
 
         const step = this.lastFrameTime ? Math.min((time - this.lastFrameTime) / (1000 / 60), 2) : 1;

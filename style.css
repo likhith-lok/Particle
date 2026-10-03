@@ -139,6 +139,52 @@ body {
     background: rgba(202, 220, 250, 0.16);
 }
 
+.fullscreen-toggle {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    place-items: center;
+    margin-left: 2px;
+    padding: 0;
+    border: 1px solid rgba(202, 220, 250, 0.2);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.025);
+    color: rgba(220, 234, 255, 0.72);
+    cursor: pointer;
+    transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.fullscreen-toggle:hover {
+    border-color: rgba(166, 216, 255, 0.65);
+    background: rgba(166, 216, 255, 0.08);
+    color: #d9efff;
+}
+
+.fullscreen-toggle:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 4px;
+}
+
+.fullscreen-toggle svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.25;
+}
+
+.experience:fullscreen {
+    background: var(--background);
+}
+
+.experience:fullscreen::after,
+.experience:fullscreen > :not(#canvas) {
+    display: none;
+}
+
 .intro {
     position: absolute;
     z-index: 2;
@@ -317,7 +363,7 @@ h1 span {
     }
 
     .metrics {
-        gap: 12px;
+        gap: 8px;
     }
 
     .metric {
@@ -331,6 +377,11 @@ h1 span {
 
     .metric__value {
         font-size: 10px;
+    }
+
+    .fullscreen-toggle {
+        width: 30px;
+        height: 30px;
     }
 
     .intro {
