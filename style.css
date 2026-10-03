@@ -139,7 +139,8 @@ body {
     background: rgba(202, 220, 250, 0.16);
 }
 
-.fullscreen-toggle {
+.fullscreen-toggle,
+.interaction-toggle {
     display: grid;
     width: 34px;
     height: 34px;
@@ -155,18 +156,21 @@ body {
     transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
-.fullscreen-toggle:hover {
+.fullscreen-toggle:hover,
+.interaction-toggle:hover {
     border-color: rgba(166, 216, 255, 0.65);
     background: rgba(166, 216, 255, 0.08);
     color: #d9efff;
 }
 
-.fullscreen-toggle:focus-visible {
+.fullscreen-toggle:focus-visible,
+.interaction-toggle:focus-visible {
     outline: 1px solid var(--accent);
     outline-offset: 4px;
 }
 
-.fullscreen-toggle svg {
+.fullscreen-toggle svg,
+.interaction-toggle svg {
     width: 15px;
     height: 15px;
     fill: none;
@@ -174,6 +178,11 @@ body {
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 1.25;
+}
+
+.interaction-toggle[aria-pressed="false"] {
+    border-color: rgba(202, 220, 250, 0.12);
+    color: rgba(220, 234, 255, 0.38);
 }
 
 .experience:fullscreen {
@@ -379,7 +388,8 @@ h1 span {
         font-size: 10px;
     }
 
-    .fullscreen-toggle {
+    .fullscreen-toggle,
+    .interaction-toggle {
         width: 30px;
         height: 30px;
     }
