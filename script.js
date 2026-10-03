@@ -108,7 +108,6 @@ class Visualizer {
         this.densityInput = document.getElementById('particle-density');
         this.densityValue = document.getElementById('density-value');
         this.fpsElement = document.getElementById('fps');
-        this.statusElement = document.getElementById('field-status-label');
         this.fullscreenButton = document.getElementById('fullscreen-toggle');
         this.fullscreenIcon = document.getElementById('fullscreen-icon');
         this.interactionButton = document.getElementById('interaction-toggle');
