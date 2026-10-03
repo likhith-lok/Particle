@@ -1,84 +1,300 @@
-/*
- * Luxury Minimalist Design
- * Focus: Depth, Sophistication, and Technical Elegance
- */
-
 :root {
-    --bg-color: #000000;
-    --text-color: rgba(255, 255, 255, 0.25);
-    --accent-color: rgba(0, 255, 255, 0.6);
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color-scheme: dark;
+    --background: #050609;
+    --muted: rgba(216, 226, 245, 0.48);
+    --bright: rgba(236, 242, 255, 0.88);
+    --accent: #a6d8ff;
+    --font-sans: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
+html,
 body {
-    background-color: var(--bg-color);
-    /* Deep gradient to add subtle depth to the void */
-    background: radial-gradient(circle at center, #050505 0%, #000000 100%);
-    overflow: hidden;
-    width: 100vw;
-    height: 100vh;
-    font-family: var(--font-family);
-}
-
-canvas {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    filter: contrast(1.1) brightness(1.1);
-}
-
-/*
- * Futuristic HUD
- * Refined for a "Digital Installation" feel
- */
-#ui {
-    position: fixed;
-    top: 40px;
-    right: 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 10px;
-    pointer-events: none;
-    z-index: 100;
-}
-
-.stat-item {
-    color: var(--text-color);
-    font-size: 10px;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.25em;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-    user-select: none;
-    opacity: 0.7;
-    transition: opacity 0.5s ease;
-}
-
-.stat-item span {
-    color: var(--accent-color);
-    margin-left: 12px;
-    font-weight: 600;
-}
-
-/* Subtle vignette effect for visual focus */
-body::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
-    box-shadow: inset 0 0 150px rgba(0,0,0,0.8);
+    margin: 0;
+}
+
+body {
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 52% 48%, rgba(17, 28, 49, 0.44), transparent 48%),
+        radial-gradient(ellipse at 82% 20%, rgba(49, 23, 70, 0.14), transparent 38%),
+        var(--background);
+    color: var(--bright);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+.experience::after {
+    position: fixed;
+    z-index: 1;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(5, 6, 9, 0.72), transparent 50%),
+        radial-gradient(ellipse at center, transparent 46%, rgba(0, 0, 0, 0.56) 100%);
+    content: "";
     pointer-events: none;
+}
+
+.experience {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 480px;
+    isolation: isolate;
+}
+
+#canvas {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    display: block;
+}
+
+.topbar,
+.bottombar {
+    position: absolute;
     z-index: 2;
+    right: clamp(24px, 5.2vw, 82px);
+    left: clamp(24px, 5.2vw, 82px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.topbar {
+    top: clamp(25px, 5vh, 50px);
+}
+
+.wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(232, 240, 255, 0.76);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+}
+
+.wordmark__symbol {
+    position: relative;
+    width: 19px;
+    height: 19px;
+    border: 1px solid rgba(178, 220, 255, 0.5);
+    border-radius: 50%;
+}
+
+.wordmark__symbol::after {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px rgba(111, 191, 255, 0.85);
+    content: "";
+}
+
+.wordmark__divider {
+    margin: 0 7px;
+    color: rgba(166, 216, 255, 0.6);
+}
+
+.metrics {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.metric {
+    display: grid;
+    gap: 6px;
+    min-width: 68px;
+    text-align: right;
+}
+
+.metric__label {
+    color: var(--muted);
+    font-size: 8px;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+}
+
+.metric__value {
+    color: rgba(230, 239, 255, 0.86);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.1em;
+}
+
+.metrics__divider {
+    width: 1px;
+    height: 26px;
+    background: rgba(202, 220, 250, 0.16);
+}
+
+.intro {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: clamp(28px, 11.2vw, 174px);
+    width: min(520px, 78vw);
+    transform: translateY(-43%);
+    pointer-events: none;
+}
+
+.eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 0 0 25px;
+    color: rgba(193, 215, 244, 0.66);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.eyebrow__line {
+    width: 22px;
+    height: 1px;
+    background: rgba(166, 216, 255, 0.7);
+}
+
+.eyebrow span:last-child {
+    color: rgba(193, 215, 244, 0.38);
+}
+
+h1 {
+    margin: 0;
+    color: rgba(237, 243, 255, 0.94);
+    font-size: clamp(46px, 6.6vw, 88px);
+    font-weight: 300;
+    letter-spacing: -0.075em;
+    line-height: 0.98;
+}
+
+h1 span {
+    color: transparent;
+    background: linear-gradient(105deg, #f1f4ff 5%, #b9d9ff 49%, #a99cd8 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+.intro__copy {
+    margin: 24px 0 0 3px;
+    color: rgba(206, 218, 240, 0.52);
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 0.045em;
+    line-height: 1.8;
+}
+
+.bottombar {
+    bottom: clamp(25px, 5vh, 50px);
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.interaction-hint,
+.field-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.interaction-hint__icon {
+    color: rgba(166, 216, 255, 0.8);
+    font-size: 14px;
+}
+
+.field-status {
+    color: rgba(211, 226, 247, 0.56);
+    font-size: 8px;
+}
+
+.field-status__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #9ce5d4;
+    box-shadow: 0 0 9px rgba(115, 230, 196, 0.75);
+}
+
+@media (max-width: 620px) {
+    .topbar,
+    .bottombar {
+        right: 22px;
+        left: 22px;
+    }
+
+    .wordmark {
+        gap: 8px;
+        font-size: 8px;
+        letter-spacing: 0.14em;
+    }
+
+    .metrics {
+        gap: 12px;
+    }
+
+    .metric {
+        min-width: 45px;
+    }
+
+    .metric__label {
+        font-size: 7px;
+        letter-spacing: 0.12em;
+    }
+
+    .metric__value {
+        font-size: 10px;
+    }
+
+    .intro {
+        top: 48%;
+        left: 8vw;
+        width: 84vw;
+    }
+
+    h1 {
+        font-size: clamp(47px, 12vw, 72px);
+    }
+
+    .intro__copy {
+        font-size: 11px;
+    }
+
+    .bottombar {
+        font-size: 7px;
+        letter-spacing: 0.1em;
+    }
+
+    .interaction-hint,
+    .field-status {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 380px) {
+    .wordmark__divider,
+    .metrics__divider {
+        display: none;
+    }
+
+    .metrics {
+        gap: 9px;
+    }
+
+    .field-status {
+        display: none;
+    }
 }

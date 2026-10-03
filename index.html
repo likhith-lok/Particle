@@ -3,16 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Particle Visualizer</title>
+    <meta name="theme-color" content="#050609">
+    <meta name="description" content="An interactive, generative field of light.">
+    <title>Particle — A Field of Light</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <main class="experience">
+        <canvas id="canvas" aria-hidden="true"></canvas>
 
-    <div id="ui">
-        <div class="stat-item">Particles: <span id="particle-count">0</span></div>
-        <div class="stat-item">FPS: <span id="fps">0</span></div>
-    </div>
+        <header class="topbar">
+            <div class="wordmark">
+                <span class="wordmark__symbol" aria-hidden="true"></span>
+                <span>PARTICLE<span class="wordmark__divider">/</span>STUDIES</span>
+            </div>
+
+            <div class="metrics" role="group" aria-label="Simulation statistics">
+                <div class="metric">
+                    <span class="metric__label">Particles</span>
+                    <span class="metric__value" id="particle-count">000</span>
+                </div>
+                <span class="metrics__divider" aria-hidden="true"></span>
+                <div class="metric">
+                    <span class="metric__label">Frame rate</span>
+                    <span class="metric__value" id="fps">--</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="intro" aria-labelledby="title">
+            <p class="eyebrow"><span class="eyebrow__line"></span> Generative study <span>№ 001</span></p>
+            <h1 id="title">A field of<br><span>living light.</span></h1>
+            <p class="intro__copy">Hundreds of quiet points,<br>moving as one.</p>
+        </section>
+
+        <footer class="bottombar">
+            <div class="interaction-hint">
+                <span class="interaction-hint__icon" aria-hidden="true">↗</span>
+                <span>Move your cursor to explore</span>
+            </div>
+            <div class="field-status" id="field-status">
+                <span class="field-status__dot" aria-hidden="true"></span>
+                <span id="field-status-label">FIELD ACTIVE</span>
+            </div>
+        </footer>
+    </main>
 
     <script src="script.js"></script>
 </body>

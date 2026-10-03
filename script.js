@@ -1,23 +1,22 @@
 /**
- * Particle Visualizer - Ultra Luxury Edition
- * Refined for extreme fluidity and visual depth.
+ * Particle — an interactive field of light.
  */
 
 const Config = {
-    particleCount: 500,           // Increased for richer density
-    connectionDistance: 150,      // Slightly extended reach for more elegant webbing
-    mouseRadius: 220,             // Wider influence for a "gravity well" feel
-    repelRadius: 50,              // Stronger repulsion for tactile response
-    baseRadius: 1.2,
-    driftStrength: 0.12,          // More pronounced organic drift
-    attractionStrength: 0.05,
-    repelStrength: 0.2,
-    friction: 0.95,               // Higher friction for smoother, "silky" easing
+    particleCount: 500,
+    connectionDistance: 142,
+    mouseRadius: 210,
+    repelRadius: 48,
+    baseRadius: 0.9,
+    driftStrength: 0.075,
+    attractionStrength: 0.028,
+    repelStrength: 0.11,
+    friction: 0.965,
     colors: [
-        { h: 180, s: 100, l: 50 }, // Neon Cyan
-        { h: 210, s: 100, l: 60 }, // Electric Blue
-        { h: 280, s: 80, l: 60 },  // Soft Purple
-        { h: 340, s: 90, l: 70 }   // Pink Accent
+        { h: 183, s: 96, l: 66 },
+        { h: 211, s: 94, l: 69 },
+        { h: 266, s: 82, l: 72 },
+        { h: 326, s: 82, l: 74 }
     ],
     idleTimeout: 5000,
 };
@@ -32,65 +31,59 @@ class Particle {
     reset() {
         this.x = Math.random() * this.width;
         this.y = Math.random() * this.height;
-        this.vx = (Math.random() - 0.5) * 1.0;
-        this.vy = (Math.random() - 0.5) * 1.0;
-        this.radius = Config.baseRadius + Math.random() * 1.5;
+        this.vx = (Math.random() - 0.5) * 0.45;
+        this.vy = (Math.random() - 0.5) * 0.45;
+        this.radius = Config.baseRadius + Math.random() * 1.1;
 
-        const colorBase = Config.colors[Math.floor(Math.random() * Config.colors.length)];
-        this.h = colorBase.h;
-        this.s = colorBase.s;
-        this.l = colorBase.l;
+        const color = Config.colors[Math.floor(Math.random() * Config.colors.length)];
+        this.h = color.h;
+        this.s = color.s;
+        this.l = color.l;
         this.glow = 0;
     }
 
-    update(mouse, isIdle, time) {
-        // 1. Organic Noise Drift
-        // Using layered sine waves to mimic Perlin noise fluidity
-        this.vx += Math.sin(time * 0.0008 + this.y * 0.005) * Config.driftStrength;
-        this.vy += Math.cos(time * 0.0008 + this.x * 0.005) * Config.driftStrength;
+    update(mouse, isIdle, time, step) {
+        const driftTime = time * 0.00022;
+        this.vx += Math.sin(driftTime + this.y * 0.004) * Config.driftStrength * step;
+        this.vy += Math.cos(driftTime + this.x * 0.004) * Config.driftStrength * step;
 
-        // 2. Ambient Breathing (Idle mode)
         if (isIdle) {
-            this.vx += Math.sin(time * 0.0015 + this.y * 0.01) * 0.05;
-            this.vy += Math.cos(time * 0.0015 + this.x * 0.01) * 0.05;
+            this.vx += Math.sin(time * 0.00045 + this.y * 0.008) * 0.018 * step;
+            this.vy += Math.cos(time * 0.00045 + this.x * 0.008) * 0.018 * step;
         }
 
-        // 3. Mouse Interaction
-        if (mouse.x !== null) {
+        if (mouse.x !== null && !isIdle) {
             const dx = mouse.x - this.x;
             const dy = mouse.y - this.y;
-            const distSq = dx * dx + dy * dy;
-            const dist = Math.sqrt(distSq);
+            const distanceSquared = dx * dx + dy * dy;
 
-            if (dist < Config.mouseRadius) {
-                const force = (Config.mouseRadius - dist) / Config.mouseRadius;
+            if (distanceSquared < Config.mouseRadius * Config.mouseRadius) {
+                const distance = Math.sqrt(distanceSquared);
+                const force = (Config.mouseRadius - distance) / Config.mouseRadius;
 
-                if (dist < Config.repelRadius) {
-                    // Repel with inverse-square feel
-                    const repelForce = (Config.repelRadius - dist) / Config.repelRadius;
-                    this.vx -= (dx / dist) * repelForce * Config.repelStrength;
-                    this.vy -= (dy / dist) * repelForce * Config.repelStrength;
-                } else {
-                    // Gentle Silk Attraction
-                    this.vx += (dx / dist) * force * Config.attractionStrength;
-                    this.vy += (dy / dist) * force * Config.attractionStrength;
+                if (distance < Config.repelRadius && distance > 0) {
+                    const repelForce = (Config.repelRadius - distance) / Config.repelRadius;
+                    this.vx -= (dx / distance) * repelForce * Config.repelStrength * step;
+                    this.vy -= (dy / distance) * repelForce * Config.repelStrength * step;
+                } else if (distance > 0) {
+                    this.vx += (dx / distance) * force * Config.attractionStrength * step;
+                    this.vy += (dy / distance) * force * Config.attractionStrength * step;
                 }
-                this.glow = force * 20;
+                this.glow = force * 11;
             } else {
-                this.glow *= 0.92;
+                this.glow *= Math.pow(0.92, step);
             }
         } else {
-            this.glow *= 0.92;
+            this.glow *= Math.pow(0.92, step);
         }
 
-        // Physics & Easing
-        this.vx *= Config.friction;
-        this.vy *= Config.friction;
-        this.x += this.vx;
-        this.y += this.vy;
+        const friction = Math.pow(Config.friction, step);
+        this.vx *= friction;
+        this.vy *= friction;
+        this.x += this.vx * step;
+        this.y += this.vy * step;
 
-        // Smooth Screen Wrap (Soft transition)
-        const padding = 20;
+        const padding = 24;
         if (this.x < -padding) this.x = this.width + padding;
         if (this.x > this.width + padding) this.x = -padding;
         if (this.y < -padding) this.y = this.height + padding;
@@ -98,21 +91,14 @@ class Particle {
     }
 
     draw(ctx, time) {
-        // Slow Color Cycling
-        const hueShift = Math.sin(time * 0.0003) * 30;
-        const finalH = (this.h + hueShift + 360) % 360;
+        const hueShift = Math.sin(time * 0.00012) * 18;
+        const hue = (this.h + hueShift + 360) % 360;
 
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `hsl(${finalH}, ${this.s}%, ${this.l}%)`;
-
-        if (this.glow > 2) {
-            ctx.shadowBlur = this.glow;
-            ctx.shadowColor = `hsl(${finalH}, ${this.s}%, ${this.l}%)`;
-        } else {
-            ctx.shadowBlur = 0;
-        }
-
+        ctx.fillStyle = `hsl(${hue}, ${this.s}%, ${this.l}%)`;
+        ctx.shadowBlur = this.glow > 1 ? this.glow : 0;
+        ctx.shadowColor = `hsl(${hue}, ${this.s}%, ${this.l}%)`;
         ctx.fill();
         ctx.shadowBlur = 0;
     }
@@ -122,124 +108,194 @@ class Visualizer {
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
+        this.countElement = document.getElementById('particle-count');
+        this.fpsElement = document.getElementById('fps');
+        this.statusElement = document.getElementById('field-status-label');
         this.particles = [];
         this.mouse = { x: null, y: null };
-        this.lastMouseTime = Date.now();
+        this.lastInteraction = performance.now();
         this.isIdle = false;
-
-        this.fpsLastTime = 0;
+        this.dpr = 1;
+        this.lastFrameTime = 0;
+        this.fpsLastTime = null;
         this.frameCount = 0;
-        this.fps = 0;
+        this.animationFrame = null;
 
-        this.init();
+        this.resize();
+        this.createParticles();
         this.setupEvents();
-        this.animate(0);
+        this.animationFrame = document.hidden
+            ? null
+            : requestAnimationFrame((time) => this.animate(time));
     }
 
-    init() {
-        this.resize();
-        this.particles = [];
-        for (let i = 0; i < Config.particleCount; i++) {
-            this.particles.push(new Particle(this.canvas.width / (window.devicePixelRatio || 1), this.canvas.height / (window.devicePixelRatio || 1)));
-        }
-        document.getElementById('particle-count').textContent = Config.particleCount;
+    createParticles() {
+        this.particles = Array.from(
+            { length: Config.particleCount },
+            () => new Particle(window.innerWidth, window.innerHeight)
+        );
+        this.countElement.textContent = String(Config.particleCount).padStart(3, '0');
     }
 
     setupEvents() {
         window.addEventListener('resize', () => this.resize());
-
-        window.addEventListener('mousemove', (e) => {
-            this.mouse.x = e.clientX;
-            this.mouse.y = e.clientY;
-            this.lastMouseTime = Date.now();
+        window.addEventListener('pointermove', (event) => {
+            this.mouse.x = event.clientX;
+            this.mouse.y = event.clientY;
+            this.lastInteraction = performance.now();
 
             if (this.isIdle) {
                 this.wakeUp();
             }
         });
-
-        window.addEventListener('mouseout', () => {
+        window.addEventListener('pointerleave', () => {
             this.mouse.x = null;
             this.mouse.y = null;
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(this.animationFrame);
+                this.animationFrame = null;
+            } else if (this.animationFrame === null) {
+                this.lastFrameTime = 0;
+                this.fpsLastTime = null;
+                this.frameCount = 0;
+                this.animationFrame = requestAnimationFrame((time) => this.animate(time));
+            }
         });
     }
 
     resize() {
-        const dpr = window.devicePixelRatio || 1;
-        this.canvas.width = window.innerWidth * dpr;
-        this.canvas.height = window.innerHeight * dpr;
-        this.ctx.scale(dpr, dpr);
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.canvas.width = Math.round(window.innerWidth * this.dpr);
+        this.canvas.height = Math.round(window.innerHeight * this.dpr);
+        this.canvas.style.width = `${window.innerWidth}px`;
+        this.canvas.style.height = `${window.innerHeight}px`;
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
 
-        // Update particle boundaries for wrap-around logic
-        this.particles.forEach(p => {
-            p.width = window.innerWidth;
-            p.height = window.innerHeight;
-        });
+        for (const particle of this.particles) {
+            particle.width = window.innerWidth;
+            particle.height = window.innerHeight;
+        }
     }
 
     wakeUp() {
         this.isIdle = false;
-        this.particles.forEach(p => {
-            // Gentle wake-up burst
-            p.vx += (Math.random() - 0.5) * 5;
-            p.vy += (Math.random() - 0.5) * 5;
-        });
-    }
-
-    updateFPS(time) {
-        this.frameCount++;
-        if (time - this.fpsLastTime >= 1000) {
-            this.fps = this.frameCount;
-            this.frameCount = 0;
-            this.fpsLastTime = time;
-            document.getElementById('fps').textContent = this.fps;
+        this.statusElement.textContent = 'FIELD ACTIVE';
+        for (const particle of this.particles) {
+            particle.vx += (Math.random() - 0.5) * 1.2;
+            particle.vy += (Math.random() - 0.5) * 1.2;
         }
     }
 
-    drawConnections() {
+    updateFPS(time) {
+        if (this.fpsLastTime === null) {
+            this.fpsLastTime = time;
+            return;
+        }
+
+        this.frameCount++;
+        if (time - this.fpsLastTime >= 1000) {
+            this.fpsElement.textContent = String(Math.round(
+                this.frameCount * 1000 / (time - this.fpsLastTime)
+            ));
+            this.frameCount = 0;
+            this.fpsLastTime = time;
+        }
+    }
+
+    buildSpatialGrid() {
+        const cellSize = Config.connectionDistance;
+        const grid = new Map();
+
+        for (let index = 0; index < this.particles.length; index++) {
+            const particle = this.particles[index];
+            const column = Math.floor(particle.x / cellSize);
+            const row = Math.floor(particle.y / cellSize);
+            const key = `${column},${row}`;
+            let cell = grid.get(key);
+
+            if (!cell) {
+                cell = [];
+                grid.set(key, cell);
+            }
+            cell.push(index);
+        }
+
+        return grid;
+    }
+
+    drawConnections(grid) {
         const ctx = this.ctx;
-        ctx.lineWidth = 0.5;
+        const cellSize = Config.connectionDistance;
+        const limitSquared = cellSize * cellSize;
+        const neighbors = [-1, 0, 1];
+        const paths = Array.from({ length: 16 }, () => []);
 
         for (let i = 0; i < this.particles.length; i++) {
-            const p1 = this.particles[i];
-            for (let j = i + 1; j < this.particles.length; j++) {
-                const p2 = this.particles[j];
-                const dx = p1.x - p2.x;
-                const dy = p1.y - p2.y;
-                const distSq = dx * dx + dy * dy;
-                const limitSq = Config.connectionDistance * Config.connectionDistance;
+            const first = this.particles[i];
+            const column = Math.floor(first.x / cellSize);
+            const row = Math.floor(first.y / cellSize);
 
-                if (distSq < limitSq) {
-                    const dist = Math.sqrt(distSq);
-                    const opacity = 1 - (dist / Config.connectionDistance);
+            for (const rowOffset of neighbors) {
+                for (const columnOffset of neighbors) {
+                    const cell = grid.get(`${column + columnOffset},${row + rowOffset}`);
+                    if (!cell) continue;
 
-                    // Line colors blend based on distance for a premium look
-                    ctx.strokeStyle = `rgba(180, 230, 255, ${opacity * 0.15})`;
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.stroke();
+                    for (const j of cell) {
+                        if (j <= i) continue;
+                        const second = this.particles[j];
+                        const dx = first.x - second.x;
+                        const dy = first.y - second.y;
+                        const distanceSquared = dx * dx + dy * dy;
+
+                        if (distanceSquared < limitSquared) {
+                            const opacity = 1 - Math.sqrt(distanceSquared) / cellSize;
+                            const bucket = Math.min(paths.length - 1, Math.floor(opacity * paths.length));
+                            paths[bucket].push(first.x, first.y, second.x, second.y);
+                        }
+                    }
                 }
             }
+        }
+
+        for (let bucket = 0; bucket < paths.length; bucket++) {
+            const path = paths[bucket];
+            if (path.length === 0) continue;
+
+            ctx.beginPath();
+            for (let index = 0; index < path.length; index += 4) {
+                ctx.moveTo(path[index], path[index + 1]);
+                ctx.lineTo(path[index + 2], path[index + 3]);
+            }
+            ctx.strokeStyle = `rgba(169, 207, 255, ${(bucket + 0.5) / paths.length * 0.21})`;
+            ctx.lineWidth = 0.55;
+            ctx.stroke();
         }
     }
 
     animate(time) {
-        if (Date.now() - this.lastMouseTime > Config.idleTimeout) {
+        if (time - this.lastInteraction > Config.idleTimeout && !this.isIdle) {
             this.isIdle = true;
+            this.statusElement.textContent = 'FIELD RESTING';
         }
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const step = this.lastFrameTime ? Math.min((time - this.lastFrameTime) / (1000 / 60), 2) : 1;
+        this.lastFrameTime = time;
 
-        this.particles.forEach(p => {
-            p.update(this.mouse, this.isIdle, time);
-            p.draw(this.ctx, time);
-        });
+        for (const particle of this.particles) {
+            particle.update(this.mouse, this.isIdle, time, step);
+        }
 
-        this.drawConnections();
+        this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        const grid = this.buildSpatialGrid();
+        this.drawConnections(grid);
+        for (const particle of this.particles) {
+            particle.draw(this.ctx, time);
+        }
+
         this.updateFPS(time);
-
-        requestAnimationFrame((t) => this.animate(t));
+        this.animationFrame = requestAnimationFrame((nextTime) => this.animate(nextTime));
     }
 }
 
