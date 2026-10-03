@@ -114,6 +114,7 @@ class Visualizer {
         this.interactionButton = document.getElementById('interaction-toggle');
         this.particles = [];
         this.mouse = { x: null, y: null };
+        this.activeTouchId = null;
         this.mouseInteractionEnabled = true;
         this.lastInteraction = performance.now();
         this.isIdle = false;
@@ -158,14 +159,24 @@ class Visualizer {
     setupEvents() {
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('pointermove', (event) => {
-            if (!this.mouseInteractionEnabled || event.target.closest('.topbar, .density-control')) return;
-
-            this.mouse.x = event.clientX;
-            this.mouse.y = event.clientY;
-            this.lastInteraction = performance.now();
-
-            if (this.isIdle) {
-                this.wakeUp();
+            this.updatePointer(event);
+        });
+        window.addEventListener('pointerdown', (event) => {
+            if (event.pointerType === 'touch') this.activeTouchId = event.pointerId;
+            this.updatePointer(event);
+        });
+        window.addEventListener('pointerup', (event) => {
+            if (event.pointerId === this.activeTouchId) {
+                this.activeTouchId = null;
+                this.mouse.x = null;
+                this.mouse.y = null;
+            }
+        });
+        window.addEventListener('pointercancel', (event) => {
+            if (event.pointerId === this.activeTouchId) {
+                this.activeTouchId = null;
+                this.mouse.x = null;
+                this.mouse.y = null;
             }
         });
         this.densityInput.addEventListener('input', () => {
@@ -189,6 +200,16 @@ class Visualizer {
                 this.animationFrame = requestAnimationFrame((time) => this.animate(time));
             }
         });
+    }
+
+    updatePointer(event) {
+        if (!this.mouseInteractionEnabled || event.target.closest('.topbar, .density-control')) return;
+        if (event.pointerType === 'touch' && event.pointerId !== this.activeTouchId) return;
+
+        this.mouse.x = event.clientX;
+        this.mouse.y = event.clientY;
+        this.lastInteraction = performance.now();
+        if (this.isIdle) this.wakeUp();
     }
 
     async toggleFullscreen() {
@@ -223,8 +244,8 @@ class Visualizer {
         }
 
         const label = this.mouseInteractionEnabled
-            ? 'Disable mouse interaction'
-            : 'Enable mouse interaction';
+            ? 'Disable pointer interaction'
+            : 'Enable pointer interaction';
         this.interactionButton.setAttribute('aria-label', label);
         this.interactionButton.setAttribute('aria-pressed', String(this.mouseInteractionEnabled));
         this.interactionButton.title = label;

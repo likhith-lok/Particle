@@ -18,6 +18,11 @@ body {
     margin: 0;
 }
 
+html {
+    height: 100vh;
+    height: 100dvh;
+}
+
 body {
     overflow: hidden;
     background:
@@ -43,7 +48,8 @@ body {
 .experience {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh;
     min-height: 480px;
     isolation: isolate;
 }
@@ -53,6 +59,7 @@ body {
     z-index: 0;
     inset: 0;
     display: block;
+    touch-action: none;
 }
 
 .topbar,
@@ -110,6 +117,20 @@ body {
     display: flex;
     align-items: center;
     gap: 25px;
+}
+
+.header-tools,
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.header-tools {
+    gap: 24px;
+}
+
+.header-actions {
+    gap: 8px;
 }
 
 .metric {
@@ -359,24 +380,44 @@ h1 span {
 }
 
 @media (max-width: 620px) {
-    .topbar,
-    .bottombar {
-        right: 22px;
-        left: 22px;
+    .topbar {
+        top: max(16px, env(safe-area-inset-top));
+        right: 18px;
+        left: 18px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        row-gap: 15px;
+    }
+
+    .header-tools {
+        display: contents;
+    }
+
+    .metrics {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-self: start;
+        gap: 13px;
+    }
+
+    .header-actions {
+        grid-column: 2;
+        grid-row: 1;
+        gap: 8px;
     }
 
     .wordmark {
+        grid-column: 1;
+        grid-row: 1;
         gap: 8px;
         font-size: 8px;
         letter-spacing: 0.14em;
     }
 
-    .metrics {
-        gap: 8px;
-    }
-
     .metric {
-        min-width: 45px;
+        min-width: 0;
+        gap: 4px;
+        text-align: left;
     }
 
     .metric__label {
@@ -388,6 +429,10 @@ h1 span {
         font-size: 10px;
     }
 
+    .metrics__divider {
+        height: 22px;
+    }
+
     .fullscreen-toggle,
     .interaction-toggle {
         width: 30px;
@@ -395,7 +440,7 @@ h1 span {
     }
 
     .intro {
-        top: 48%;
+        top: 46%;
         left: 8vw;
         width: 84vw;
     }
@@ -409,6 +454,9 @@ h1 span {
     }
 
     .bottombar {
+        right: 20px;
+        bottom: max(18px, env(safe-area-inset-bottom));
+        left: 20px;
         font-size: 7px;
         letter-spacing: 0.1em;
     }
@@ -416,6 +464,11 @@ h1 span {
     .interaction-hint,
     .field-status {
         gap: 6px;
+    }
+
+    .density-control {
+        bottom: calc(66px + env(safe-area-inset-bottom));
+        width: min(280px, calc(100vw - 48px));
     }
 }
 
@@ -425,11 +478,21 @@ h1 span {
         display: none;
     }
 
-    .metrics {
-        gap: 9px;
-    }
-
     .field-status {
         display: none;
+    }
+}
+
+@media (max-height: 560px) and (max-width: 620px) {
+    .intro {
+        top: 48%;
+    }
+
+    h1 {
+        font-size: clamp(38px, 9vh, 56px);
+    }
+
+    .density-control {
+        bottom: calc(54px + env(safe-area-inset-bottom));
     }
 }
