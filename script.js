@@ -1,23 +1,23 @@
 /**
- * Particle Visualizer - Luxury Edition
- * High-performance organic simulation
+ * Particle Visualizer - Ultra Luxury Edition
+ * Refined for extreme fluidity and visual depth.
  */
 
 const Config = {
-    particleCount: 400,
-    connectionDistance: 140,
-    mouseRadius: 180,
-    repelRadius: 40,
-    baseRadius: 1.5,
-    driftStrength: 0.08,
-    attractionStrength: 0.04,
-    repelStrength: 0.15,
-    friction: 0.96,
+    particleCount: 500,           // Increased for richer density
+    connectionDistance: 150,      // Slightly extended reach for more elegant webbing
+    mouseRadius: 220,             // Wider influence for a "gravity well" feel
+    repelRadius: 50,              // Stronger repulsion for tactile response
+    baseRadius: 1.2,
+    driftStrength: 0.12,          // More pronounced organic drift
+    attractionStrength: 0.05,
+    repelStrength: 0.2,
+    friction: 0.95,               // Higher friction for smoother, "silky" easing
     colors: [
         { h: 180, s: 100, l: 50 }, // Neon Cyan
-        { h: 200, s: 100, l: 60 }, // Electric Blue
-        { h: 260, s: 80, l: 60 },  // Deep Purple
-        { h: 320, s: 90, l: 70 }   // Soft Pink
+        { h: 210, s: 100, l: 60 }, // Electric Blue
+        { h: 280, s: 80, l: 60 },  // Soft Purple
+        { h: 340, s: 90, l: 70 }   // Pink Accent
     ],
     idleTimeout: 5000,
 };
@@ -32,8 +32,8 @@ class Particle {
     reset() {
         this.x = Math.random() * this.width;
         this.y = Math.random() * this.height;
-        this.vx = (Math.random() - 0.5) * 1.2;
-        this.vy = (Math.random() - 0.5) * 1.2;
+        this.vx = (Math.random() - 0.5) * 1.0;
+        this.vy = (Math.random() - 0.5) * 1.0;
         this.radius = Config.baseRadius + Math.random() * 1.5;
 
         const colorBase = Config.colors[Math.floor(Math.random() * Config.colors.length)];
@@ -44,17 +44,18 @@ class Particle {
     }
 
     update(mouse, isIdle, time) {
-        // 1. Organic Noise Drift (Pseudo-Perlin)
-        this.vx += Math.sin(time * 0.001 + this.y * 0.01) * Config.driftStrength;
-        this.vy += Math.cos(time * 0.001 + this.x * 0.01) * Config.driftStrength;
+        // 1. Organic Noise Drift
+        // Using layered sine waves to mimic Perlin noise fluidity
+        this.vx += Math.sin(time * 0.0008 + this.y * 0.005) * Config.driftStrength;
+        this.vy += Math.cos(time * 0.0008 + this.x * 0.005) * Config.driftStrength;
 
         // 2. Ambient Breathing (Idle mode)
         if (isIdle) {
-            this.vx += Math.sin(time * 0.002 + this.y * 0.005) * 0.03;
-            this.vy += Math.cos(time * 0.002 + this.x * 0.005) * 0.03;
+            this.vx += Math.sin(time * 0.0015 + this.y * 0.01) * 0.05;
+            this.vy += Math.cos(time * 0.0015 + this.x * 0.01) * 0.05;
         }
 
-        // 3. Mouse Interaction (Gravity Well)
+        // 3. Mouse Interaction
         if (mouse.x !== null) {
             const dx = mouse.x - this.x;
             const dy = mouse.y - this.y;
@@ -65,38 +66,40 @@ class Particle {
                 const force = (Config.mouseRadius - dist) / Config.mouseRadius;
 
                 if (dist < Config.repelRadius) {
-                    // Strong repel
+                    // Repel with inverse-square feel
                     const repelForce = (Config.repelRadius - dist) / Config.repelRadius;
                     this.vx -= (dx / dist) * repelForce * Config.repelStrength;
                     this.vy -= (dy / dist) * repelForce * Config.repelStrength;
                 } else {
-                    // Soft attract
+                    // Gentle Silk Attraction
                     this.vx += (dx / dist) * force * Config.attractionStrength;
                     this.vy += (dy / dist) * force * Config.attractionStrength;
                 }
-                this.glow = force * 15;
+                this.glow = force * 20;
             } else {
-                this.glow *= 0.9;
+                this.glow *= 0.92;
             }
         } else {
-            this.glow *= 0.9;
+            this.glow *= 0.92;
         }
 
-        // Physics
+        // Physics & Easing
         this.vx *= Config.friction;
         this.vy *= Config.friction;
         this.x += this.vx;
         this.y += this.vy;
 
-        // Screen Wrap
-        if (this.x < 0) this.x = this.width;
-        if (this.x > this.width) this.x = 0;
-        if (this.y < 0) this.y = this.height;
-        if (this.y > this.height) this.y = 0;
+        // Smooth Screen Wrap (Soft transition)
+        const padding = 20;
+        if (this.x < -padding) this.x = this.width + padding;
+        if (this.x > this.width + padding) this.x = -padding;
+        if (this.y < -padding) this.y = this.height + padding;
+        if (this.y > this.height + padding) this.y = -padding;
     }
 
     draw(ctx, time) {
-        const hueShift = Math.sin(time * 0.0005) * 20;
+        // Slow Color Cycling
+        const hueShift = Math.sin(time * 0.0003) * 30;
         const finalH = (this.h + hueShift + 360) % 360;
 
         ctx.beginPath();
@@ -137,7 +140,7 @@ class Visualizer {
         this.resize();
         this.particles = [];
         for (let i = 0; i < Config.particleCount; i++) {
-            this.particles.push(new Particle(this.canvas.width, this.canvas.height));
+            this.particles.push(new Particle(this.canvas.width / (window.devicePixelRatio || 1), this.canvas.height / (window.devicePixelRatio || 1)));
         }
         document.getElementById('particle-count').textContent = Config.particleCount;
     }
@@ -162,13 +165,12 @@ class Visualizer {
     }
 
     resize() {
-        // Handle High-DPI displays properly
         const dpr = window.devicePixelRatio || 1;
         this.canvas.width = window.innerWidth * dpr;
         this.canvas.height = window.innerHeight * dpr;
         this.ctx.scale(dpr, dpr);
 
-        // Update particle boundaries
+        // Update particle boundaries for wrap-around logic
         this.particles.forEach(p => {
             p.width = window.innerWidth;
             p.height = window.innerHeight;
@@ -178,8 +180,9 @@ class Visualizer {
     wakeUp() {
         this.isIdle = false;
         this.particles.forEach(p => {
-            p.vx += (Math.random() - 0.5) * 4;
-            p.vy += (Math.random() - 0.5) * 4;
+            // Gentle wake-up burst
+            p.vx += (Math.random() - 0.5) * 5;
+            p.vy += (Math.random() - 0.5) * 5;
         });
     }
 
@@ -195,7 +198,7 @@ class Visualizer {
 
     drawConnections() {
         const ctx = this.ctx;
-        ctx.lineWidth = 0.6;
+        ctx.lineWidth = 0.5;
 
         for (let i = 0; i < this.particles.length; i++) {
             const p1 = this.particles[i];
@@ -209,7 +212,9 @@ class Visualizer {
                 if (distSq < limitSq) {
                     const dist = Math.sqrt(distSq);
                     const opacity = 1 - (dist / Config.connectionDistance);
-                    ctx.strokeStyle = `rgba(180, 220, 255, ${opacity * 0.2})`;
+
+                    // Line colors blend based on distance for a premium look
+                    ctx.strokeStyle = `rgba(180, 230, 255, ${opacity * 0.15})`;
                     ctx.beginPath();
                     ctx.moveTo(p1.x, p1.y);
                     ctx.lineTo(p2.x, p2.y);
@@ -220,14 +225,12 @@ class Visualizer {
     }
 
     animate(time) {
-        // Idle logic
         if (Date.now() - this.lastMouseTime > Config.idleTimeout) {
             this.isIdle = true;
         }
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Update and Draw Particles
         this.particles.forEach(p => {
             p.update(this.mouse, this.isIdle, time);
             p.draw(this.ctx, time);
