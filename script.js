@@ -12,10 +12,10 @@ const Config = {
     repelStrength: 0.62,
     friction: 0.965,
     colors: [
-        { h: 183, s: 96, l: 66 },
-        { h: 211, s: 94, l: 69 },
-        { h: 266, s: 82, l: 72 },
-        { h: 326, s: 82, l: 74 }
+        { h: 187, s: 43, l: 66 },
+        { h: 211, s: 40, l: 70 },
+        { h: 249, s: 33, l: 70 },
+        { h: 286, s: 29, l: 69 }
     ],
     idleTimeout: 5000,
 };
@@ -86,7 +86,7 @@ class Particle {
     }
 
     draw(ctx, time) {
-        const hueShift = Math.sin(time * 0.00012) * 18;
+        const hueShift = Math.sin(time * 0.00009) * 8;
         const hue = (this.h + hueShift + 360) % 360;
 
         ctx.beginPath();
@@ -355,7 +355,7 @@ class Visualizer {
                 ctx.moveTo(path[index], path[index + 1]);
                 ctx.lineTo(path[index + 2], path[index + 3]);
             }
-            ctx.strokeStyle = `rgba(169, 207, 255, ${(bucket + 0.5) / paths.length * 0.21})`;
+            ctx.strokeStyle = `rgba(185, 207, 199, ${(bucket + 0.5) / paths.length * 0.16})`;
             ctx.lineWidth = 0.55;
             ctx.stroke();
         }
